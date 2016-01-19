@@ -3,6 +3,7 @@ package com.example.sandeep.myevents;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.Calendar;
 
 public class EventHome extends AppCompatActivity {
     SharedPreferences sharedPreferences;
@@ -28,8 +31,6 @@ public class EventHome extends AppCompatActivity {
         logout=(Button)findViewById(R.id.button6);
         e=(TextView)findViewById(R.id.textView6);
         int id=sharedPreferences.getInt("id",0);
-        String email=sharedPreferences.getString("email", null);
-        e.setText(String.valueOf(id) + "  "+email);
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +48,16 @@ public class EventHome extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        EventSqlHelper eventSqlHelper=new EventSqlHelper(this);
+        Cursor c=eventSqlHelper.getEvent(sharedPreferences.getInt("id",0));
+        if(c.moveToFirst()){
+           final Intent intent=new Intent(EventHome.this,PushNotification.class);
+            intent.setAction("event");
+            startService(intent);
+            e.setText(c.getString(1) + " " + c.getString(2));
+        }
     }
 
     void userLogout()
@@ -54,6 +65,7 @@ public class EventHome extends AppCompatActivity {
         SharedPreferences.Editor editor=sharedPreferences.edit();
         editor.clear();
         editor.commit();
+        stopService(new Intent(EventHome.this,PushNotification.class));
         Intent intent=new Intent(EventHome.this,EventLogin.class);
         startActivity(intent);
         finish();

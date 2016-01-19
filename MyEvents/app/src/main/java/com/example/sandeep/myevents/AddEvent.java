@@ -90,6 +90,7 @@ public class AddEvent extends AppCompatActivity {
            if(id>0)
            {
             Toast.makeText(this,"Event added",Toast.LENGTH_SHORT).show();
+               finish();
            }
         }
 
