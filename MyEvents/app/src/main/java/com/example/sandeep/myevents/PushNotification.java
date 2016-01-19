@@ -94,6 +94,7 @@ public class PushNotification extends Service {
         snooze.setAction("snooze");
         Intent dismiss = new Intent();
         dismiss.setAction("dismiss");
+        dismiss.putExtra("notification",1);
 
         dismiss.putExtra("id",1);
 
@@ -141,8 +142,10 @@ public class PushNotification extends Service {
             {
                 Toast.makeText(context,"Snooze",Toast.LENGTH_SHORT).show();
             }
-            else if(intent.getAction().equals("dismiss"));
+            else if(intent.getAction().equals("dismiss"))
             {
+                NotificationManager mnotify=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                mnotify.cancel(intent.getIntExtra("notification",0));
                 Toast.makeText(context,"dismiss",Toast.LENGTH_SHORT).show();
             }
 
