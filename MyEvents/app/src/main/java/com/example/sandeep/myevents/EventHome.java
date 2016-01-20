@@ -51,7 +51,8 @@ public class EventHome extends AppCompatActivity {
 
 
         EventSqlHelper eventSqlHelper=new EventSqlHelper(this);
-        Cursor c=eventSqlHelper.getEvent(sharedPreferences.getInt("id",0));
+        Calendar cal=Calendar.getInstance();
+        Cursor c=eventSqlHelper.getEvent(sharedPreferences.getInt("id",0),cal);
         if(c.moveToFirst()){
            final Intent intent=new Intent(EventHome.this,PushNotification.class);
             intent.setAction("event");

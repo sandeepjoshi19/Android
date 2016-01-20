@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Calendar;
+
 /**
  * Created by sandeep on 1/17/2016.
  */
 public class EventSqlHelper extends SQLiteOpenHelper {
     public EventSqlHelper(Context context) {
-        super(context, "EventDatabase.dp", null, 26);
+        super(context, "EventDatabase.dp", null, 37);
     }
 
     @Override
@@ -72,10 +74,12 @@ public class EventSqlHelper extends SQLiteOpenHelper {
         return db.insert("EVENTS",null,cv);
     }
 
-    Cursor getEvent(int id)
+    Cursor getEvent(int id,Calendar calendar)
     {
+        String times=String.valueOf(calendar.get(Calendar.YEAR))+String.valueOf(Calendar.MONTH)+String.valueOf(Calendar.DATE)+String.valueOf(Calendar.HOUR_OF_DAY)+String.valueOf(Calendar.MINUTE);
+        int time=Integer.parseInt(times);
         SQLiteDatabase db=getReadableDatabase();
-        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id+" AND NOTIFIED=0 ORDER BY TIMEDATE ";
+        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id+" AND NOTIFIED=0 AND TIMEDATE > "+time+" ORDER BY TIMEDATE ";
         return db.rawQuery(query,null);
 
     }
@@ -93,6 +97,13 @@ public class EventSqlHelper extends SQLiteOpenHelper {
         String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id;
         Cursor c=db.rawQuery(query,null);
         return c.getCount();
+    }
+
+    void setSnooze(int id)
+    {
+        SQLiteDatabase db= getWritableDatabase();
+        String query="UPDATE EVENTS SET SNOOZE=1 WHERE _id="+id;
+        db.execSQL(query);
     }
 
 }

@@ -1,11 +1,16 @@
 package com.example.sandeep.myevents;
 
+import android.content.Intent;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -14,9 +19,13 @@ import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class AddLocation extends FragmentActivity implements OnMapReadyCallback ,GoogleMap.OnMapClickListener{
+public class AddLocation extends FragmentActivity implements OnMapReadyCallback ,GoogleMap.OnMapClickListener,
+        GoogleApiClient.OnConnectionFailedListener,GoogleMap.OnMyLocationButtonClickListener{
 
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
     private GoogleMap mMap;
+    private Location mLastLocation;;
+    GoogleApiClient mGoogleApiClient;
     GoogleApiClient.Builder mgoogleapiclient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +36,18 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
                 .findFragmentById(R.id.map);
         if(mgoogleapiclient==null) {
             mapFragment.getMapAsync(this);
-            //mgoogleapiclient = new GoogleApiClient.Builder(this).addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
-              //      .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this).addApi(LOCATION_SERVICE.API).build();
+        }
+        if (checkPlayServices()) {
+            buildGoogleApiClient();
         }
     }
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+    }
+
 
     @Override
     protected void onStart() {
@@ -66,10 +83,65 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
         mMap.setMyLocationEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
+        if (checkPlayServices()) {
+
+            // Building the GoogleApi client
+            buildGoogleApiClient();
+        }
     }
 
+    private void displayLocation() {
+
+        mLastLocation = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+
+        if (mLastLocation != null) {
+            double latitude = mLastLocation.getLatitude();
+            double longitude = mLastLocation.getLongitude();
+            Intent intent=getIntent();
+            intent.putExtra("latitude",latitude);
+            intent.putExtra("longitude",longitude);
+            this.setResult(RESULT_OK, intent);
+            Toast.makeText(this, latitude + "," + longitude, Toast.LENGTH_SHORT);
+            finish();
+
+
+        } else {
+
+
+                    Toast.makeText(this, "(Couldn't get the location. Make sure location is enabled on the device",Toast.LENGTH_SHORT);
+        }
+    }
     @Override
     public void onMapClick(LatLng latLng) {
 
     }
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "This device is not supported.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
 }

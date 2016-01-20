@@ -65,8 +65,8 @@ public class PushNotification extends Service {
 
 
     void notificationDateTime(int id)
-    {
-        Cursor c=eventSqlHelper.getEvent(id);
+    {   Calendar cal=Calendar.getInstance();
+        Cursor c=eventSqlHelper.getEvent(id,cal );
         if(c.moveToFirst()) {
             calendar.set(Calendar.YEAR, c.getInt(2));
             calendar.set(Calendar.MONTH, c.getInt(3));
@@ -103,7 +103,8 @@ public class PushNotification extends Service {
         psnooze = PendingIntent.getBroadcast(this, 0, snooze, PendingIntent.FLAG_UPDATE_CURRENT);
         pdismiss=PendingIntent.getBroadcast(this,0,dismiss,PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Cursor c=eventSqlHelper.getEvent(id);
+        Calendar cal=Calendar.getInstance();
+        Cursor c=eventSqlHelper.getEvent(id,cal);
         c.moveToFirst();
 
 
