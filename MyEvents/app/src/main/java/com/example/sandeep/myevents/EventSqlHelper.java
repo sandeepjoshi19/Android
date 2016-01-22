@@ -13,15 +13,16 @@ import java.util.Calendar;
  */
 public class EventSqlHelper extends SQLiteOpenHelper {
     public EventSqlHelper(Context context) {
-        super(context, "EventDatabase.dp", null, 37);
+        super(context, "EventDatabase.dp", null, 47);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query="CREATE TABLE EVENTLOGIN( _id INTEGER PRIMARY KEY AUTOINCREMENT ,EMAIL TEXT UNIQUE,PASSWORD TEXT)";
+        String query = "CREATE TABLE EVENTLOGIN( _id INTEGER PRIMARY KEY AUTOINCREMENT ,EMAIL TEXT UNIQUE,PASSWORD TEXT)";
         db.execSQL(query);
-        query="CREATE TABLE EVENTS(_id INTEGER  PRIMARY KEY AUTOINCREMENT,EVENT TEXT NOT NULL,YEAR INTEGER NOT NULL,MONTH INTEGER NOT NULL," +
-                "DAY INTEGER NOT NULL,HOUR INTEGER NOT NULL,MINUTE INTEGER NOT NULL ,"+
+        query = "CREATE TABLE EVENTS(_id INTEGER  PRIMARY KEY AUTOINCREMENT,EVENT TEXT NOT NULL,YEAR INTEGER NOT NULL," +
+                "MONTH INTEGER NOT NULL," +
+                "DAY INTEGER NOT NULL,HOUR INTEGER NOT NULL,MINUTE INTEGER NOT NULL ," +
                 "LONGITUDE INTEGER,LATITUDE INTEGER,ACCOUNT INTEGER,SNOOZE INTEGER DEFAULT 0," +
                 "NOTIFIED INTEGER DEFAULT 0,TIMEDATE INTEGER NOT NULL,FOREIGN KEY(ACCOUNT) REFERENCES EVENTLOGIN(_id))";
         db.execSQL(query);
@@ -29,81 +30,148 @@ public class EventSqlHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db,int nwversion,int oldversion) {
-        String query="DROP TABLE EVENTS";
+    public void onUpgrade(SQLiteDatabase db, int nwversion, int oldversion) {
+        String query = "DROP TABLE EVENTS";
         db.execSQL(query);
-        query="DROP TABLE EVENTLOGIN";
+        query = "DROP TABLE EVENTLOGIN";
         db.execSQL(query);
         onCreate(db);
+
     }
 
-    long registerUser(String email,String password)
-    {
-        SQLiteDatabase db=getWritableDatabase();
-        ContentValues cv=new ContentValues();
-        cv.put("EMAIL",email);
+    long registerUser(String email, String password) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("EMAIL", email);
         cv.put("PASSWORD", password);
-        long i= db.insert("EVENTLOGIN",null,cv);
-        return  i;
+        long i = db.insert("EVENTLOGIN", null, cv);
+        return i;
 
     }
 
-    Cursor loginUser(String username,String password)
-    {
-        SQLiteDatabase db=getReadableDatabase();
-        String query="SELECT * FROM EVENTLOGIN WHERE EMAIL='"+username+"' AND PASSWORD='"+password+"'";
-        return  db.rawQuery(query,null);
+    Cursor loginUser(String username, String password) {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM EVENTLOGIN WHERE EMAIL='" + username + "' AND PASSWORD='" + password + "'";
+        return db.rawQuery(query, null);
     }
 
-    long addNewEvent(String event,int hour,int minute,int day,int month,int year,int latitude,int longitude,int id)
-    {
-        String eventdatetime= String.valueOf(year)+"-"+String.valueOf(month+1)+"-"+String.valueOf(day)+ " "+String.valueOf(hour)+":"+String.valueOf(minute);
-        String datetime=String.valueOf(year)+String.valueOf(month+1)+String.valueOf(day)+String.valueOf(hour)+String.valueOf(minute);
-        SQLiteDatabase db=getWritableDatabase();
-        ContentValues cv=new ContentValues();
-        cv.put("EVENT",event);
-        cv.put("HOUR",hour);
-        cv.put("MINUTE",minute);
-        cv.put("YEAR",year);
-        cv.put("MONTH",month);
-        cv.put("DAY",day);
-        cv.put("LATITUDE",latitude);
-        cv.put("LONGITUDE",longitude);
-        cv.put("TIMEDATE",String.valueOf(datetime));
-        cv.put("ACCOUNT",id);
-        return db.insert("EVENTS",null,cv);
+    long addNewEvent(String event, int hour, int minute, int day, int month, int year, int latitude, int longitude, int id) {
+        long datetime=timevalue(year,month+1,day,hour,minute);
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("EVENT", event);
+        cv.put("HOUR", hour);
+        cv.put("MINUTE", minute);
+        cv.put("YEAR", year);
+        cv.put("MONTH", month);
+        cv.put("DAY", day);
+        cv.put("LATITUDE", latitude);
+        cv.put("LONGITUDE", longitude);
+        cv.put("TIMEDATE", datetime);
+        cv.put("ACCOUNT", id);
+        return db.insert("EVENTS", null, cv);
     }
 
-    Cursor getEvent(int id,Calendar calendar)
-    {
-        String times=String.valueOf(calendar.get(Calendar.YEAR))+String.valueOf(Calendar.MONTH)+String.valueOf(Calendar.DATE)+String.valueOf(Calendar.HOUR_OF_DAY)+String.valueOf(Calendar.MINUTE);
-        int time=Integer.parseInt(times);
-        SQLiteDatabase db=getReadableDatabase();
-        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id+" AND NOTIFIED=0 AND TIMEDATE > "+time+" ORDER BY TIMEDATE ";
-        return db.rawQuery(query,null);
+    Cursor getEvent(int id, Calendar calendar) {
+        long time=timevalue(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM EVENTS WHERE ACCOUNT=" + id + " AND NOTIFIED=0 AND TIMEDATE >= " + time + " ORDER BY TIMEDATE ";
+        return db.rawQuery(query, null);
 
     }
 
-    void setNotified(int id)
-    {
-        SQLiteDatabase db= getWritableDatabase();
-        String query="UPDATE EVENTS SET NOTIFIED=1 WHERE _id="+id;
-         db.execSQL(query);
+
+
+    void setNotified(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "UPDATE EVENTS SET NOTIFIED=1 WHERE _id=" + id;
+        db.execSQL(query);
     }
 
-    long nextEvent(int id)
-    {
-        SQLiteDatabase db=getReadableDatabase();
-        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id;
-        Cursor c=db.rawQuery(query,null);
+    long nextEvent(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM EVENTS WHERE ACCOUNT=" + id;
+        Cursor c = db.rawQuery(query, null);
         return c.getCount();
     }
 
-    void setSnooze(int id)
-    {
-        SQLiteDatabase db= getWritableDatabase();
-        String query="UPDATE EVENTS SET SNOOZE=1 WHERE _id="+id;
+    void setSnooze(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "UPDATE EVENTS SET SNOOZE=1 WHERE _id=" + id;
         db.execSQL(query);
     }
+    Cursor getSnnozeEvents(int id)
+    {
+        Calendar calendar=Calendar.getInstance();
+        long time=timevalue(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 
+        SQLiteDatabase db=getReadableDatabase();
+        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id+" AND SNOOZE = 1 AND TIMEDATE >=" +time+" ORDER BY TIMEDATE";
+        return db.rawQuery(query,null);
+    }
+   void endSnooze(int id)
+   {
+       SQLiteDatabase db=getWritableDatabase();
+       String query="UPDATE EVENTS SET SNOOZE = 0 WHERE _id="+id;
+       db.execSQL(query);
+   }
+    Cursor getEventById(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT * FROM EVENTS WHERE _id=" +id;
+        Cursor c = db.rawQuery(query, null);
+        return c;
+    }
+
+    long timevalue(int year,int month,int day,int hour,int minute)
+    {
+        StringBuffer time=new StringBuffer();
+        time.append(year);
+        if(month<10)
+        {
+            time.append(0);
+            time.append(month);
+        }
+        else
+        {
+            time.append(month);
+        }
+        if(day<10)
+        {
+            time.append(0);
+            time.append(day);
+        }
+        else
+        {
+            time.append(day);
+        }
+        if(hour<10)
+        {
+            time.append(0);
+            time.append(hour);
+        }
+        else
+        {
+            time.append(hour);
+        }
+        if(minute<10)
+        {
+            time.append(0);
+            time.append(minute);
+        }
+        else
+        {
+            time.append(minute);
+        }
+
+
+        return Long.parseLong(time.toString());
+
+    }
+    Cursor getData( int id)
+    {
+        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id;
+        SQLiteDatabase db=getReadableDatabase();
+        return db.rawQuery(query,null);
+
+    }
 }

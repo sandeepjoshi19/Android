@@ -80,6 +80,8 @@ public class AddEvent extends AppCompatActivity {
         });
     }
 
+
+
     public void addEvent()
     {
         String event=eventinfo.getText().toString();
@@ -89,8 +91,10 @@ public class AddEvent extends AppCompatActivity {
             long id= eventSqlHelper.addNewEvent(event,hours,minutes,days,months,years,latitudes,longitudes,intent.getIntExtra("id",0));
            if(id>0)
            {
-            Toast.makeText(this,"Event added",Toast.LENGTH_SHORT).show();
+
+               Toast.makeText(this,"Event added",Toast.LENGTH_SHORT).show();
                Intent intent1=new Intent(AddEvent.this,EventHome.class);
+
                startActivity(intent1);
                finish();
            }
@@ -133,6 +137,7 @@ public class AddEvent extends AppCompatActivity {
 
         }
     }
+
     public  class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 

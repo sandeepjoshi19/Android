@@ -13,6 +13,7 @@ public class EventTimeReciever extends BroadcastReceiver {
 
         Intent intent1=new Intent(context,PushNotification.class);
         intent1.setAction("notification");
+        intent.putExtra("eventid",intent.getIntExtra("eventid",0));
         context.startService(intent1);
 
     }

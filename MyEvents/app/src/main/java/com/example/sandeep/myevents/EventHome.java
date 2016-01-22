@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -51,15 +52,25 @@ public class EventHome extends AppCompatActivity {
 
 
         EventSqlHelper eventSqlHelper=new EventSqlHelper(this);
-        Calendar cal=Calendar.getInstance();
-        Cursor c=eventSqlHelper.getEvent(sharedPreferences.getInt("id",0),cal);
-        if(c.moveToFirst()){
-           final Intent intent=new Intent(EventHome.this,PushNotification.class);
+
+        Calendar calendar=Calendar.getInstance();
+       Cursor c=eventSqlHelper.getData(sharedPreferences.getInt("id", 0));
+        StringBuilder sb=new StringBuilder();
+        while(c.moveToNext()){
+                sb.append(c.getInt(0)+" ");
+                sb.append(c.getLong(12) + "\n");
+        }
+        if(c.moveToFirst())
+        {
+            final Intent intent=new Intent(EventHome.this,PushNotification.class);
             intent.setAction("event");
             startService(intent);
-            e.setText(c.getString(1) + " " + c.getString(2));
         }
+
+        e.setText(sb.toString());
+        eventSqlHelper.close();
     }
+
 
     void userLogout()
     {
