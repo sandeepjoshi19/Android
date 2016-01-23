@@ -54,18 +54,22 @@ public class PushNotification extends Service {
             if (id.equals("notification")) {
                 Toast.makeText(this, intent.getAction(), Toast.LENGTH_SHORT).show();
                 notification(sharedPreferences.getInt("id", 0));
+                notificationDateTime(sharedPreferences.getInt("id", 0));
+            } else if (id.equals("snooze")) {
+                snoozeNotification(intent.getIntExtra("eventid",0));
+                snoozeNotificationDateTime(sharedPreferences.getInt("id", 0));
+            } else if (id.equals("Restart") || id.equals("BOOT_COMPLETED") || id.equals("event"))
+            {
+                notificationDateTime(sharedPreferences.getInt("id", 0));
+                snoozeNotificationDateTime(sharedPreferences.getInt("id",0));
             }
-            else if(id.equals("snooze")) {
-                Toast.makeText(this, intent.getAction() + String.valueOf(intent.getIntExtra("eventid",0)), Toast.LENGTH_SHORT).show();
-                snoozeNotification(intent.getIntExtra("eventid", 0));
-            }
-            else {
+            else{
                 Toast.makeText(this, intent.getAction(), Toast.LENGTH_SHORT).show();
             }
         }
 
-        notificationDateTime(sharedPreferences.getInt("id",0));
-        snoozeNotificationDateTime(sharedPreferences.getInt("id",0));
+
+
         return START_STICKY;
 
     }
@@ -74,7 +78,7 @@ public class PushNotification extends Service {
 
     void notificationDateTime(int id)
     {   Calendar cal=Calendar.getInstance();
-        Cursor c=eventSqlHelper.getEvent(id,cal );
+        Cursor c = eventSqlHelper.getEvent(id,cal );
         if(c.moveToFirst()) {
             calendar.set(Calendar.YEAR, c.getInt(2));
             calendar.set(Calendar.MONTH, c.getInt(3));
@@ -82,7 +86,6 @@ public class PushNotification extends Service {
             calendar.set(Calendar.HOUR_OF_DAY, c.getInt(5));
             calendar.set(Calendar.MINUTE, c.getInt(6));
             calendar.set(Calendar.SECOND, 0);
-
             calendar.add(Calendar.MINUTE, -15);
             Toast.makeText(this,String.valueOf(calendar.getTime()),Toast.LENGTH_LONG).show();
 
@@ -99,7 +102,7 @@ public class PushNotification extends Service {
     }
 
     void snoozeNotificationDateTime(int id)
-    {   Calendar cal=Calendar.getInstance();
+    {
         Cursor c=eventSqlHelper.getSnnozeEvents(id);
         if(c.moveToFirst()) {
             calendar.set(Calendar.YEAR, c.getInt(2));
@@ -108,10 +111,11 @@ public class PushNotification extends Service {
             calendar.set(Calendar.HOUR_OF_DAY, c.getInt(5));
             calendar.set(Calendar.MINUTE, c.getInt(6));
             calendar.set(Calendar.SECOND, 0);
-            calendar.add(Calendar.MINUTE, +15);
+            calendar.add(Calendar.MINUTE, 15);
+
             eventSqlHelper.close();
             Intent myIntent = new Intent(this, SnoozeReciever.class);
-            myIntent.putExtra("eventid",id);
+            myIntent.putExtra("eventid",c.getInt(0));
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             Toast.makeText(this, "Snooze "+String.valueOf(calendar.getTime()), Toast.LENGTH_LONG).show();
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);

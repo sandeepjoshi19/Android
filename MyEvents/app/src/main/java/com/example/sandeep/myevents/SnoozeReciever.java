@@ -12,7 +12,9 @@ public class SnoozeReciever extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent snooze=new Intent(context,PushNotification.class);
-        snooze.setAction("snooze");
+        snooze
+
+                .setAction("snooze");
         snooze.putExtra("eventid", intent.getIntExtra("eventid", 0));
          context.startService(snooze);
     }
