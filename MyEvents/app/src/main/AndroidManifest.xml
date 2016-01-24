@@ -11,8 +11,9 @@
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -30,12 +31,14 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
         <service android:name=".PushNotification" />
-        <receiver android:name=".SnoozeReciever">
+
+        <receiver android:name=".SnoozeReciever" >
         </receiver>
-        <receiver android:name=".EventTimeReciever">
+        <receiver android:name=".EventTimeReciever" >
         </receiver>
-        <receiver android:name=".AfterSwitchingOnStarter">
+        <receiver android:name=".AfterSwitchingOnStarter" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -46,6 +49,7 @@
                 </action>
             </intent-filter>
         </receiver>
+
         <activity
             android:name=".AddLocation"
             android:label="@string/title_activity_add_location" >
@@ -70,6 +74,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".EventRegister" >
+        </activity>
+        <activity android:name=".CurrentLocation" >
+        </activity>
+        <activity
+            android:name=".EventLocation"
+            android:label="@string/title_activity_event_location"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

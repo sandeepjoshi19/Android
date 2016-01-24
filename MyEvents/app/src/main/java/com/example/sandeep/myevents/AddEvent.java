@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -26,14 +27,17 @@ import java.util.Date;
 
 public class AddEvent extends AppCompatActivity {
     Button btime,bdate,addevent;
-    int hours=-1,minutes=-1,days=-1,months=-1,years=-1,latitudes=1,longitudes=1;
+    int hours=-1,minutes=-1,days=-1,months=-1,years=-1;
+    double latitudes=1,longitudes=1;
     String event;
     EventSqlHelper eventSqlHelper;
     Date date;
     EditText eventinfo;
+    ImageButton curlocation;
     Calendar eventdatetime=Calendar.getInstance();;
     TextView tdate,ttime;
     int REQUEST_CODE=10;
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,44 +46,52 @@ public class AddEvent extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         eventSqlHelper=new EventSqlHelper(this);
-
+        curlocation=(ImageButton)findViewById(R.id.imageButton);
         eventinfo=(EditText)findViewById(R.id.editText);
         addevent=(Button)findViewById(R.id.button7);
         ttime=(TextView)findViewById(R.id.textView2);
         tdate=(TextView)findViewById(R.id.textView3);
         btime=(Button)findViewById(R.id.button);
         bdate=(Button)findViewById(R.id.button2);
+
+
+        curlocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intent=new Intent(AddEvent.this,CurrentLocation.class);
+                startActivityForResult(intent,REQUEST_CODE);
+            }
+        });
         addevent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                addEvent();
             }
         });
-       btime.setOnClickListener(new View.OnClickListener() {
+        btime.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
                DialogFragment newFragment = new TimePickerFragment();
                newFragment.show(getSupportFragmentManager(), "timePicker");
-           }
+            }
        });
-       bdate.setOnClickListener(new View.OnClickListener() {
+        bdate.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
                DialogFragment newFragment = new DatePickerFragment();
                newFragment.show(getSupportFragmentManager(), "datePicker");
-           }
+            }
        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(AddEvent.this,AddLocation.class);
+                intent=new Intent(AddEvent.this,AddLocation.class);
                 startActivityForResult(intent,REQUEST_CODE);
             }
         });
     }
-
 
 
     public void addEvent()
@@ -111,8 +123,9 @@ public class AddEvent extends AppCompatActivity {
     {
         if(requestcode==REQUEST_CODE && resultcode==RESULT_OK)
         {
-            latitudes=1;
-            longitudes=1;
+            latitudes=intent.getDoubleExtra("lattitude",0);
+            longitudes=intent.getDoubleExtra("longitude",0);
+            Toast.makeText(this,String.valueOf(latitudes)+String.valueOf(longitudes),Toast.LENGTH_SHORT).show();
         }
     }
     public  class TimePickerFragment extends DialogFragment

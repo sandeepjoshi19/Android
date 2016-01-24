@@ -6,21 +6,21 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
 public class EventHome extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     Button logout;
-    TextView e;
+    TextView event,time,date;
+    ImageButton eventlocation;
     public  static  final  String MYPREFERENCE="mypref";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +30,26 @@ public class EventHome extends AppCompatActivity {
         setSupportActionBar(toolbar);
         sharedPreferences=getSharedPreferences(MYPREFERENCE, Context.MODE_PRIVATE) ;
         logout=(Button)findViewById(R.id.button6);
-        e=(TextView)findViewById(R.id.textView6);
-        int id=sharedPreferences.getInt("id",0);
+        event=(TextView)findViewById(R.id.event);
+        time=(TextView)findViewById(R.id.time);
+        date=(TextView)findViewById(R.id.date);
+        eventlocation=(ImageButton)findViewById(R.id.imageButton2);
 
+        final  int id=sharedPreferences.getInt("id",0);
+
+        eventlocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventSqlHelper eventSqlHelper=new EventSqlHelper(EventHome.this);
+                Cursor c= eventSqlHelper.getData(id);
+                if(c.moveToFirst()) {
+                    Intent intent = new Intent(EventHome.this, EventLocation.class);
+                    intent.putExtra("lattitude",c.getDouble(8));
+                    intent.putExtra("longitude",c.getDouble(7));
+                    startActivity(intent);
+                }
+            }
+        });
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,9 +73,10 @@ public class EventHome extends AppCompatActivity {
         Calendar calendar=Calendar.getInstance();
        Cursor c=eventSqlHelper.getData(sharedPreferences.getInt("id", 0));
         StringBuilder sb=new StringBuilder();
-        while(c.moveToNext()){
-                sb.append(c.getInt(0)+" ");
-                sb.append(c.getLong(12) + "\n");
+        if(c.moveToFirst()){
+            event.setText("Upcoming event :  "+ c.getString(1));
+            date.setText("Date  :  " + c.getInt(4) + "/" + c.getInt(3) + "/" + c.getInt(2));
+            time.setText("Time  :  " + c.getInt(5) + ":" + c.getInt(6));
         }
         if(c.moveToFirst())
         {
@@ -67,7 +85,6 @@ public class EventHome extends AppCompatActivity {
             startService(intent);
         }
 
-        e.setText(sb.toString());
         eventSqlHelper.close();
     }
 

@@ -55,7 +55,7 @@ public class EventSqlHelper extends SQLiteOpenHelper {
         return db.rawQuery(query, null);
     }
 
-    long addNewEvent(String event, int hour, int minute, int day, int month, int year, int latitude, int longitude, int id) {
+    long addNewEvent(String event, int hour, int minute, int day, int month, int year, double latitude, double longitude, int id) {
         long datetime=timevalue(year,month+1,day,hour,minute);
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -169,7 +169,9 @@ public class EventSqlHelper extends SQLiteOpenHelper {
     }
     Cursor getData( int id)
     {
-        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id;
+        Calendar calendar=Calendar.getInstance();
+        long time=timevalue(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        String query="SELECT * FROM EVENTS WHERE ACCOUNT="+id+" AND TIMEDATE>="+time;
         SQLiteDatabase db=getReadableDatabase();
         return db.rawQuery(query,null);
 
