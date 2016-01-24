@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -43,10 +44,16 @@ public class EventHome extends AppCompatActivity {
                 EventSqlHelper eventSqlHelper=new EventSqlHelper(EventHome.this);
                 Cursor c= eventSqlHelper.getData(id);
                 if(c.moveToFirst()) {
-                    Intent intent = new Intent(EventHome.this, EventLocation.class);
-                    intent.putExtra("lattitude",c.getDouble(8));
-                    intent.putExtra("longitude",c.getDouble(7));
-                    startActivity(intent);
+                    if(c.getDouble(7)!=1 && c.getDouble(8)!=1) {
+                        Intent intent = new Intent(EventHome.this, EventLocation.class);
+                        intent.putExtra("lattitude", c.getDouble(8));
+                        intent.putExtra("longitude", c.getDouble(7));
+                        startActivity(intent);
+                    }
+                    else
+                    {
+                        Toast.makeText(EventHome.this,"Location not added to event",Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
@@ -75,7 +82,7 @@ public class EventHome extends AppCompatActivity {
         StringBuilder sb=new StringBuilder();
         if(c.moveToFirst()){
             event.setText("Upcoming event :  "+ c.getString(1));
-            date.setText("Date  :  " + c.getInt(4) + "/" + c.getInt(3) + "/" + c.getInt(2));
+            date.setText("Date  :  " + c.getInt(4) + "/" + String.valueOf(c.getInt(3)+1) + "/" + c.getInt(2));
             time.setText("Time  :  " + c.getInt(5) + ":" + c.getInt(6));
         }
         if(c.moveToFirst())

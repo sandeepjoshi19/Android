@@ -47,7 +47,7 @@ public class CurrentLocation extends AppCompatActivity implements GoogleApiClien
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(this,"Connection failed",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"Connection failed enable your internet and gps",Toast.LENGTH_SHORT).show();
 
     }
 
@@ -63,14 +63,14 @@ public class CurrentLocation extends AppCompatActivity implements GoogleApiClien
         }
         else
         {
-            Toast.makeText(this,"Location not detected",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Location not detected enable your location and internet",Toast.LENGTH_SHORT).show();
         }
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Toast.makeText(this,"connection suspended",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"connection suspended check your internet connection is enabled",Toast.LENGTH_SHORT).show();
         googleApiClient.connect();
     }
 }

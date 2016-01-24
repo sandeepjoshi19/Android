@@ -87,8 +87,8 @@ public class AddEvent extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                intent=new Intent(AddEvent.this,AddLocation.class);
-                startActivityForResult(intent,REQUEST_CODE);
+              //  intent=new Intent(AddEvent.this,AddLocation.class);
+              //  startActivityForResult(intent,REQUEST_CODE);
             }
         });
     }
@@ -125,7 +125,7 @@ public class AddEvent extends AppCompatActivity {
         {
             latitudes=intent.getDoubleExtra("lattitude",0);
             longitudes=intent.getDoubleExtra("longitude",0);
-            Toast.makeText(this,String.valueOf(latitudes)+String.valueOf(longitudes),Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Current location/ last known location added",Toast.LENGTH_SHORT).show();
         }
     }
     public  class TimePickerFragment extends DialogFragment

@@ -61,10 +61,7 @@ public class PushNotification extends Service {
             } else if (id.equals("Restart") || id.equals("BOOT_COMPLETED") || id.equals("event"))
             {
                 notificationDateTime(sharedPreferences.getInt("id", 0));
-                snoozeNotificationDateTime(sharedPreferences.getInt("id",0));
-            }
-            else{
-                Toast.makeText(this, intent.getAction(), Toast.LENGTH_SHORT).show();
+                snoozeNotificationDateTime(sharedPreferences.getInt("id", 0));
             }
         }
 
@@ -149,6 +146,7 @@ public class PushNotification extends Service {
         Cursor c=eventSqlHelper.getEvent(id,cal);
         c.moveToFirst();
         snooze.putExtra("eventid", c.getInt(0));
+        snooze.putExtra("notification", 1);
 
         PendingIntent pintent,psnooze,pdismiss;
         pintent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -206,7 +204,9 @@ public class PushNotification extends Service {
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals("snooze"))
             {
-                Toast.makeText(context,"Snooze "+String.valueOf(intent.getIntExtra("eventid",0)),Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"Snoozed ",Toast.LENGTH_SHORT).show();
+                NotificationManager mnotify=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                mnotify.cancel(intent.getIntExtra("notification", 0));
                 snooze(intent.getIntExtra("eventid",0));
             }
             else if(intent.getAction().equals("dismiss"))
